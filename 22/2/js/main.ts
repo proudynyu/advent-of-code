@@ -43,8 +43,6 @@ type EnemyChoice = "A" | "B" | "C"
 type Choice = "X" | "Y" | "Z" 
 
 function firstPart(): [number, number] {
-    
-
     const start = performance.now()
     let somatoryForMatchs = 0;
     for (let match of matchs) {
