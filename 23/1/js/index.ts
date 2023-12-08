@@ -33,69 +33,63 @@ function part_one(file: string) {
   console.log(sum);
 }
 
-function removeNumberDigits(fileLines: string[]): string[] {
-  const reg = new RegExp(/\d/gi);
-
-  return fileLines.map(line => {
-    return line.replace(reg, '');
-  });
-}
+const translateLettersMap = {
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+};
 
 function findNumberWithinWord(lines: string[]) {
-  const reg = new RegExp(/one|two|three|four|five|six|seven|eight|nine|zero/gi);
-  const translate = {
-    one: 1,
-    two: 2,
-    three: 3,
-    four: 4,
-    five: 5,
-    six: 6,
-    seven: 7,
-    eight: 8,
-    nine: 9,
-    zero: 0,
-  } as const;
+  const reg = new RegExp(/(one|two|three|four|five|six|seven|eight|nine|\d)/gi);
+  const lineNumbers = [] as string[][];
 
-  const nums = lines
-    .map(line => {
-      return line.match(reg);
-    })
-    .filter(Boolean);
+  for (let line of lines) {
+    const matchedPattern = line.match(reg) as string[] | undefined;
 
-  const result: string[] = [];
-  for (let num of nums) {
-    const translatedNumbers = num?.map(word => {
-      // @ts-ignore
-      return translate[word];
-    });
-
-    result.push(translatedNumbers?.join('') ?? '');
+    if (matchedPattern) {
+      lineNumbers.push([
+        matchedPattern[0],
+        matchedPattern[matchedPattern.length - 1],
+      ]);
+    }
   }
 
-  return result.filter(Boolean);
+  return lineNumbers;
 }
 
-function getFirstAndLastNumbers(list: string[]): string[] {
-  return list.map(num => {
-    if (num.length === 1) {
-      return num;
+function convertAndGlueNumbers(lineNumbers: string[][]) {
+  const translated = [] as string[];
+  for (let line of lineNumbers) {
+    const temp = [] as string[];
+
+    for (let num of line) {
+      if (translateLettersMap[num]) {
+        temp.push(String(translateLettersMap[num]));
+      } else {
+        temp.push(num);
+      }
     }
 
-    return num[0] + num[num.length - 1];
-  });
+    translated.push(temp.join(''));
+  }
+
+  return translated
 }
 
 function part_two(file: string) {
   const fileLines = file.split('\n');
+  const lineNumbers = findNumberWithinWord(fileLines);
+  const numberTranslated = convertAndGlueNumbers(lineNumbers);
 
-  const lines = removeNumberDigits(fileLines);
+  const sum = sumNumberFromLines(numberTranslated)
 
-  const numList = findNumberWithinWord(lines);
-  const numsForSum = getFirstAndLastNumbers(numList);
-
-  const sum = sumNumberFromLines(numsForSum);
-
-  console.log(sum)
+  console.log(numberTranslated, sum);
 }
 
 part_one(file);
