@@ -2,38 +2,11 @@ import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 
 const isTest = !process.argv.includes('input');
-const filePath = resolve(__dirname, isTest ? 'example_2.txt' : 'input.txt');
+const filePath = resolve(__dirname, isTest ? 'example.txt' : 'input.txt');
 
 const file = readFileSync(filePath, 'utf8');
 
-function getNumberFromLine(fileLines: string[]): string[] {
-  const noDigitRegex = new RegExp(/\D/gi);
-  const numList = [];
-
-  for (let line of fileLines) {
-    const parsed = line.replace(noDigitRegex, '');
-
-    numList.push(parsed[0] + parsed[parsed.length - 1]);
-  }
-
-  return numList.filter(Boolean);
-}
-
-function sumNumberFromLines(numberList: string[]): number {
-  return numberList.reduce((prev, curr) => {
-    return Number(curr) + Number(prev);
-  }, 0);
-}
-
-function part_one(file: string) {
-  const fileLines = file.split('\n');
-
-  const numLines = getNumberFromLine(fileLines);
-  const sum = sumNumberFromLines(numLines);
-  console.log(sum);
-}
-
-const translateLettersMap = {
+const TRANSLATE_NUMBER_MAP = {
   one: 1,
   two: 2,
   three: 3,
@@ -45,52 +18,34 @@ const translateLettersMap = {
   nine: 9,
 };
 
-function findNumberWithinWord(lines: string[]) {
-  const reg = new RegExp(/(one|two|three|four|five|six|seven|eight|nine|\d)/gi);
-  const lineNumbers = [] as string[][];
 
-  for (let line of lines) {
-    const matchedPattern = line.match(reg) as string[] | undefined;
+// no regex
+function part_one(file: string) {
+  const fileLines = file.split('\n').filter(Boolean)
 
-    if (matchedPattern) {
-      lineNumbers.push([
-        matchedPattern[0],
-        matchedPattern[matchedPattern.length - 1],
-      ]);
-    }
-  }
+  const arr: string[] = []
+  for (let line of fileLines) {
+      const letters = line.split('')
+      const temp: string[] = []
 
-  return lineNumbers;
-}
-
-function convertAndGlueNumbers(lineNumbers: string[][]) {
-  const translated = [] as string[];
-  for (let line of lineNumbers) {
-    const temp = [] as string[];
-
-    for (let num of line) {
-      if (translateLettersMap[num]) {
-        temp.push(String(translateLettersMap[num]));
-      } else {
-        temp.push(num);
+      for (let letter of letters) {
+          if (!Number.isNaN(Number(letter))) {
+              temp.push(letter)
+          }
       }
-    }
 
-    translated.push(temp.join(''));
+      arr.push(temp[0] + temp[temp.length - 1])
   }
 
-  return translated
+  const sum = arr.reduce((prev, curr) => {
+      return Number(prev) + Number(curr)
+  }, 0)
+
+  console.log(sum)
 }
 
-function part_two(file: string) {
-  const fileLines = file.split('\n');
-  const lineNumbers = findNumberWithinWord(fileLines);
-  const numberTranslated = convertAndGlueNumbers(lineNumbers);
-
-  const sum = sumNumberFromLines(numberTranslated)
-
-  console.log(numberTranslated, sum);
+function part_two() {
+    const fileLines = file.split('\n')
 }
 
 part_one(file);
-part_two(file);
