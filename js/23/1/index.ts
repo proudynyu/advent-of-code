@@ -17,17 +17,6 @@ const TRANSLATE_NUMBER_MAP = {
   eight: 8,
   nine: 9,
 };
-const NUMBERS_WORDS = [
-  'one',
-  'two',
-  'three',
-  'four',
-  'five',
-  'six',
-  'seven',
-  'eight',
-  'nine',
-] as const;
 
 // no regex
 function part_one(file: string) {
@@ -54,40 +43,56 @@ function part_one(file: string) {
   console.log(sum);
 }
 
+function translateWordFromLine(line: string) {
+  const NUMBERS_WORDS = [
+    'one',
+    'two',
+    'three',
+    'four',
+    'five',
+    'six',
+    'seven',
+    'eight',
+    'nine',
+  ];
+  let i = 0;
+  const r: string[] = [];
+
+  while (i <= line.length) {
+    for (let word of NUMBERS_WORDS) {
+      if (line.slice(i).startsWith(word)) {
+        r.push(String(TRANSLATE_NUMBER_MAP[word]));
+        i += word.length - 2;
+        break;
+      } else if (!Number.isNaN(Number(line[i]))) {
+        r.push(line[i]);
+        i+=line[i].length - 1;
+        break;
+      }
+    }
+    i++;
+  }
+
+  return r
+}
+
 function part_two(file: string) {
   const fileLines = file.split('\n');
 
-  // the problem is here
-  const reg = new RegExp(
-    '(one|two|three|four|five|six|seven|eight|nine|\\d)',
-    'gi',
-  );
+  const r = fileLines.map(line => translateWordFromLine(line))
+  console.log(r)
 
-  const nums: string[] = [];
+  const nums: number[] = []
 
-  for (let line of fileLines) {
-    const match = line.match(reg);
-    const result: string[] = [];
-
-    if (match) {
-      result.push(match[0], match[match.length - 1]);
-    }
-
-    const translated: string[] = [];
-    for (let word of result) {
-      if (Number.isNaN(Number(word))) {
-        translated.push(String(TRANSLATE_NUMBER_MAP[word]));
-      } else {
-        translated.push(word);
+  r.forEach(numArr => {
+      if (numArr.length) {
+          nums.push(Number(numArr[0] + numArr[numArr.length - 1]))
       }
-    }
+  })
 
-    nums.push(translated.join(''));
-  }
-
-  const sum = nums.filter(Boolean).reduce((prev, curr) => {
-    return Number(prev) + Number(curr);
-  }, 0);
+  const sum = nums.reduce((prev, curr) => {
+      return prev + curr
+  }, 0)
 
   console.log(sum)
 }
