@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
-const filePath = resolve(__dirname, 'example.txt')
+const filePath = resolve(__dirname, 'input')
 const fileLines = readFileSync(filePath, 'utf-8').split('\n').filter(Boolean)
 
 const max_quantity = {
@@ -10,26 +10,50 @@ const max_quantity = {
     green: 13
 } as const
 
-function getGameId(line: string): string {
-    const [gameWithId] = line.split(':')
+// Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
 
-    return gameWithId.split(' ')[1]
+function main_1(fileLines: string[]) {
+    return fileLines
+        .map(line => {
+            const gameId: string = line.split(":")[0].trim().split(" ")[1].trim()
+            const games: string = line.split(":")[1].trim()
+
+            return [gameId, games]
+        })
+        .map(mapped => {
+            const id = mapped[0]
+            const games = mapped[1]
+            const splittedGames = games.split(";").map(game => game.split(",").map(g => g.trim())).flat()
+
+            return { id, games: splittedGames}
+        })
+        .map(({id, games}) => {
+            const result: boolean[] = []
+
+            games.forEach(game => {
+                const [qty, color] = game.split(" ")
+
+                if (color === "blue" && Number(qty) <= max_quantity.blue) {
+                    result.push(true)
+                } else if (color === "red" && Number(qty) <= max_quantity.red) {
+                    result.push(true)
+                } else if (color === "green" && Number(qty) <= max_quantity.green){
+                    result.push(true)
+                } else {
+                   result.push(false)
+                }
+            })
+
+            const isCorretGame = result.every(value => value)
+
+            return {
+                id,
+                isCorretGame
+            }
+        })
+        .filter(game => game.isCorretGame)
+        .map(game => game.id)
+        .reduce((prev, curr) => (prev + Number(curr)), 0)
 }
 
-function getGames(line: string): string[] {
-    return line.split(':')[1].trim().split(';')
-}
-
-function main_pt1(contents: string[]) {
-    const games = contents.map(content => {
-        return {
-            id: getGameId(content),
-            games: getGames(content)
-        }
-    })
-
-    console.log(games)
-}
-
-
-main_pt1(fileLines)
+console.log(main_1(fileLines))
