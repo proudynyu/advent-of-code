@@ -1,6 +1,6 @@
 {_, input} = File.read("./input")
 
-count = 
+list = 
    String.split(input, "")
   |> Enum.map(fn char ->
     cond do
@@ -12,6 +12,11 @@ count =
         0
     end
   end)
-  |> Enum.sum()
 
-  IO.puts(count)
+part_one = Enum.sum(list)
+
+part_two = Enum.scan(list, &(&1 + &2))
+  |> Enum.find_index(fn num -> num === -1 end)
+
+IO.puts("part 1: #{part_one}")
+IO.puts("part 2: #{part_two}")
