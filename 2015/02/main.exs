@@ -10,11 +10,25 @@ list = file
   
 part_one = list
   |> Enum.map(fn item ->
-    lowest = Enum.min(item)
-    lowest
-    # sum = lowest + Enum.scan(item, &(&1 + &2))
-    # sum
+    [w, l, h] = item
+    wrap = [w*l , w*h , h*l]
+    lowest = Enum.min(wrap)
+
+    wrap_sum = wrap
+      |> Enum.map(fn n -> n*2 end)
+      |> Enum.sum()
+
+    wrap_sum + lowest
+  end)
+  |> Enum.sum()
+
+part_two = list
+  |> Enum.map(fn item ->
+    # [w, l, h] = item
+    # perimeters = Enum.scan(item, &(&1 * 2))
+    # perimeters
+    item
   end)
 
-IO.inspect(list)
-IO.inspect(part_one, charlists: :as_list)
+IO.inspect(part_one)
+IO.inspect(part_two)
