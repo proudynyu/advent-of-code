@@ -1,4 +1,24 @@
-{_, file} = File.read("./example")
+{_, file} = File.read("./input")
+
+defmodule Dimensions do
+  def calculate_perimeters([w, l, h]) do
+    [
+      { 2 * w + 2 * l, { w, l }},
+      { 2 * w + 2 * h, { w, h }},
+      { 2 * l + 2 * h, { l, h }}
+    ]
+  end
+
+  def get_min_perimeter(dimensions) do
+    dimensions
+      |> calculate_perimeters()
+      |> Enum.min_by(fn { sum, _ } -> sum end)
+  end
+
+  def get_area([w, l, h]) do
+    w * l * h
+  end
+end
 
 list = file
   |> String.trim()
@@ -23,12 +43,12 @@ part_one = list
   |> Enum.sum()
 
 part_two = list
-  |> Enum.map(fn item ->
-    # [w, l, h] = item
-    # perimeters = Enum.scan(item, &(&1 * 2))
-    # perimeters
-    item
+  |> Enum.map(fn item_list ->
+    {min_perimeter, _} = Dimensions.get_min_perimeter(item_list)
+    area = Dimensions.get_area(item_list)
+    area + min_perimeter
   end)
+  |> Enum.sum()
 
 IO.inspect(part_one)
-IO.inspect(part_two)
+IO.inspect(part_two, charlists: :as_lists)
