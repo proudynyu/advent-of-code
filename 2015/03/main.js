@@ -75,7 +75,6 @@ function part_two() {
     }
     const santa = Object.keys(visited_santa)
     const robo = Object.keys(visited_robo)
-
     const set = new Set([...santa, ...robo]).size
     console.log({ 
         set
