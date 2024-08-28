@@ -11,24 +11,45 @@ defmodule Resolve do
       |> String.split("")
       |> Enum.filter(fn letter -> String.length(letter) !== 0 end)
       |> Enum.map(fn letter -> 
-        cond letter do
-          ">" ->
-            [0, 1]
-          "v" ->
-            [-1, 0]
-          "\^" ->
-            [1, 0]
-          "<" ->
-            [0, -1]
-
+        case letter do
+          ">" -> [0, 1]
+          "v" -> [-1, 0]
+          "\^" -> [1, 0]
+          "<" -> [0, -1]
         end
       end)
   end
 
   def part_one(file) do
-    file = read_file(file)
-    IO.inspect(file)
+    file
+      |> Enum.scan(
+        &([
+          Enum.at(&1, 0) + Enum.at(&2, 0), 
+          Enum.at(&1, 1) + Enum.at(&2, 1)
+        ])
+      )
+      |> MapSet.new()
+      |> MapSet.put([0,0])
+      |> MapSet.size()
+  end
+
+  def part_two(file) do
+    file
+      |> Stream.with_index
+      |> Enum.reduce([[],[]], fn ({x, i}, [evens, odds]) -> 
+        case rem(i, 2) do
+          0 -> [evens ++ [x], odds]
+          _ -> [evens, odds ++ [x]]
+        end
+      end)
+      |> Enum.map(fn x -> part_one(x) end)
+      |> Enum.sum()
   end
 end
 
-Resolve.part_one("example")
+file = Resolve.read_file("input")
+values = Resolve.part_one(file)
+splited_values = Resolve.part_two(file)
+
+IO.inspect(values)
+IO.inspect(splited_values)
