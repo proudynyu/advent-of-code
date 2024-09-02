@@ -42,14 +42,22 @@ defmodule Resolve do
           _ -> [evens, odds ++ [x]]
         end
       end)
-      |> Enum.map(fn x -> part_one(x) end)
-      |> Enum.sum()
+      |> Enum.map(fn point -> 
+        point
+        |> Enum.scan(
+          &([
+            Enum.at(&1, 0) + Enum.at(&2, 0), 
+            Enum.at(&1, 1) + Enum.at(&2, 1)
+          ])
+        )
+        |> MapSet.new()
+      end)
   end
 end
 
-file = Resolve.read_file("input")
+file = Resolve.read_file("example")
 values = Resolve.part_one(file)
 splited_values = Resolve.part_two(file)
 
 IO.inspect(values)
-IO.inspect(splited_values)
+IO.inspect(splited_values, charlists: :as_lists)
