@@ -51,11 +51,16 @@ defmodule Resolve do
           ])
         )
         |> MapSet.new()
+        |> MapSet.to_list()
       end)
+      |> Enum.flat_map(& &1)
+      |> MapSet.new()
+      |> MapSet.put([0,0])
+      |> MapSet.size()
   end
 end
 
-file = Resolve.read_file("example")
+file = Resolve.read_file("input")
 values = Resolve.part_one(file)
 splited_values = Resolve.part_two(file)
 
