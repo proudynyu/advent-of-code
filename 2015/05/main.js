@@ -12,56 +12,87 @@ const file =
     .trim()
     .split("\n")
 
-const vowels = "aeiou".split("")
+// const vowels = "aeiou".split("")
+//
+// function duplicatedVowel(line, vowels) {
+//     const countVowelsObject = {}
+//     for (let letter of line) {
+//         if(vowels.includes(letter)) {
+//             if (countVowelsObject[letter]) {
+//                 countVowelsObject[letter]++
+//             } else {
+//                 countVowelsObject[letter] = 1
+//             }
+//         }
+//     }
+//     return Object.values(countVowelsObject)
+//         .reduce((prev, curr) => prev + curr, 0) >= 3
+// }
+//
+// function notAllowedLetters(line) {
+//     return !["ab", "cd", "pq", "xy"].some(pair => line.includes(pair))
+// }
+//
+// function createDoubleAlphabet() {
+//     let alphabet = ""
+//     for (let i = 65; i <= 90; i++) {
+//         alphabet = alphabet + String.fromCharCode(i).toLowerCase()
+//     }
+//     const double_alpha = alphabet
+//         .split("")
+//         .map(char => char + char)
+//     return double_alpha
+// }
+//
+// function hasDoubleAlphaLetter(line, double_alpha) {
+//     for (let double of double_alpha) {
+//         if (line.includes(double)) {
+//             return true
+//         }
+//     }
+//     return false
+// }
+//     
+// const double_alpha = createDoubleAlphabet()
+// const file_with_allowed = file
+//     .filter(notAllowedLetters)
+//     .filter(line => hasDoubleAlphaLetter(line, double_alpha))
+//     .filter(line => duplicatedVowel(line, vowels))
 
-function duplicatedVowel(line, vowels) {
-    const countVowelsObject = {}
-    for (let letter of line) {
-        if(vowels.includes(letter)) {
-            if (countVowelsObject[letter]) {
-                countVowelsObject[letter]++
-            } else {
-                countVowelsObject[letter] = 1
-            }
+// Code Reviewed part_one
+const vowels = new Set("aeiou") // <-- O(1)
+
+function hasThreeVowels(line) {
+    let vowelCount = 0
+    for (const char of line) {
+        if (vowels.has(char)) {
+            vowelCount++
         }
+        if (vowelCount >= 3) return true
     }
-    return Object.values(countVowelsObject)
-        .reduce((prev, curr) => prev + curr, 0) >= 3
+    return false
 }
 
-function notAllowedLetters(line) {
-    return !["ab", "cd", "pq", "xy"].some(pair => line.includes(pair))
+function noForbiddenSubstrings(line) {
+    const forbidden = ["ab", "cd", "pq", "xy"]
+    return forbidden.every(pair => !line.includes(pair))
 }
 
-function createDoubleAlphabet() {
-    let alphabet = ""
-    for (let i = 65; i <= 90; i++) {
-        alphabet = alphabet + String.fromCharCode(i).toLowerCase()
-    }
-    const double_alpha = alphabet
-        .split("")
-        .map(char => char + char)
-    return double_alpha
-}
-
-function hasDoubleVowels(line, double_alpha) {
-    for (let double of double_alpha) {
-        if (line.includes(double)) {
+function hasDoubleLetter(line) {
+    for (let i = 0; i < line.length - 1; i++) {
+        if (line[i] === line[i + 1]) {
             return true
         }
     }
     return false
 }
-    
-const double_alpha = createDoubleAlphabet()
+
 const file_with_allowed = file
-    .filter(notAllowedLetters)
-    .filter(line => hasDoubleVowels(line, double_alpha))
-    .filter(line => duplicatedVowel(line, vowels))
+    .filter(noForbiddenSubstrings)
+    .filter(hasDoubleLetter)
+    .filter(hasThreeVowels)
 
 console.log({ 
-    // file,
     len: file.length,
-    // file_with_allowed,
     new_len: file_with_allowed.length,
 })
