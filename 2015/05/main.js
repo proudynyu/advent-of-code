@@ -1,7 +1,7 @@
 const fs = require("node:fs")
 const path = require("node:path")
 
-const filename = "example"
+const filename = "input"
 const file =
     fs.readFileSync(
         path.resolve(__dirname, filename),
@@ -13,6 +13,21 @@ const file =
     .split("\n")
 
 const vowels = "aeiou".split("")
+
+function duplicatedVowel(line, vowels) {
+    const countVowelsObject = {}
+    for (let letter of line) {
+        if(vowels.includes(letter)) {
+            if (countVowelsObject[letter]) {
+                countVowelsObject[letter]++
+            } else {
+                countVowelsObject[letter] = 1
+            }
+        }
+    }
+    return Object.values(countVowelsObject)
+        .reduce((prev, curr) => prev + curr, 0) >= 3
+}
 
 function notAllowedLetters(line) {
     return !["ab", "cd", "pq", "xy"].some(pair => line.includes(pair))
@@ -42,5 +57,11 @@ const double_alpha = createDoubleAlphabet()
 const file_with_allowed = file
     .filter(notAllowedLetters)
     .filter(line => hasDoubleVowels(line, double_alpha))
+    .filter(line => duplicatedVowel(line, vowels))
 
-console.log({ file, len: file.length, file_with_allowed, new_len: file_with_allowed.length })
+console.log({ 
+    // file,
+    len: file.length,
+    // file_with_allowed,
+    new_len: file_with_allowed.length,
+})
