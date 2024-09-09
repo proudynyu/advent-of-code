@@ -34,13 +34,35 @@ defmodule Resolver do
   end
 
   @spec has_three_vowels?(String.t(), list(String.t())) :: Atom.t()
-  defp has_three_vowels?(_line, _vowels) do
-    true
+  defp has_three_vowels?(line, vowels) do
+    line
+    |> String.split("")
+    |> Enum.filter(fn x -> String.length(x) > 0 end)
+    |> Enum.reduce(0, fn letter, acc -> 
+      case Enum.member?(vowels, letter) do
+        true -> acc + 1
+        false -> acc
+      end
+    |> case do
+        x when x >= 3 ->
+          true
+        _ -> false
+      end
+    end)
   end
 
   @spec has_double_alpha_letter?(String.t()) :: Atom.t()
-  defp has_double_alpha_letter?(_line) do
-    true
+  defp has_double_alpha_letter?(line) do
+    line
+    |> String.split("")
+    |> Enum.filter(fn x -> String.length(x) > 0 end)
+    |> Enum.scan(&(&1 === &2))
+    |> Enum.filter(fn x -> x end)
+    |> length
+    |> case do
+      x when x > 0 -> true
+      _ -> false
+    end
   end
 
   @spec part_one(String.t()) :: Integer.t()

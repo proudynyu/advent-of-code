@@ -1,7 +1,7 @@
 const fs = require("node:fs")
 const path = require("node:path")
 
-const filename = "input"
+const filename = "example"
 const file =
     fs.readFileSync(
         path.resolve(__dirname, filename),
@@ -90,8 +90,14 @@ function hasDoubleLetter(line) {
 const file_with_allowed = file
     .filter(noForbiddenSubstrings)
     .filter(hasDoubleLetter)
-    .filter(hasThreeVowels)
+    // .filter(hasThreeVowels)
 
+if (filename === "example") {
+    console.log({
+        file,
+        file_with_allowed
+    })
+}
 console.log({ 
     len: file.length,
     new_len: file_with_allowed.length,
