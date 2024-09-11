@@ -20,9 +20,7 @@ defmodule Resolver do
   @spec create_vowels() :: list(String.t())
   defp create_vowels() do
     "aeiou"
-      |> String.split()
-      |> Enum.filter(fn x -> String.length(x) > 0 end)
-      |> MapSet.new()
+      |> String.graphemes()
   end
 
   @spec no_forbiden_substrings?(String.t()) :: Atom.t()
@@ -36,16 +34,14 @@ defmodule Resolver do
   @spec has_three_vowels?(String.t(), list(String.t())) :: Atom.t()
   defp has_three_vowels?(line, vowels) do
     line
-    |> String.split("")
-    |> Enum.filter(fn x -> String.length(x) > 0 end)
+    |> String.graphemes()
     |> Enum.reduce(0, fn letter, acc -> 
       case Enum.member?(vowels, letter) do
         true -> acc + 1
-        false -> acc
+        _ -> acc
       end
     |> case do
-        x when x >= 3 ->
-          true
+        x when x >= 3 -> true
         _ -> false
       end
     end)
@@ -54,11 +50,11 @@ defmodule Resolver do
   @spec has_double_alpha_letter?(String.t()) :: Atom.t()
   defp has_double_alpha_letter?(line) do
     line
-    |> String.split("")
-    |> Enum.filter(fn x -> String.length(x) > 0 end)
-    |> Enum.scan(&(&1 === &2))
-    |> Enum.filter(fn x -> x end)
-    |> length
+    |> String.graphemes()
+    |> Enum.chunk_by(fn arg -> arg end)
+    |> Enum.map(fn arg -> to_string(arg) end)
+    |> Enum.filter(fn x -> String.length(x) > 1 end)
+    |> length()
     |> case do
       x when x > 0 -> true
       _ -> false
@@ -76,6 +72,7 @@ defmodule Resolver do
           and has_double_alpha_letter?(line)
           and has_three_vowels?(line, vowels)
       end)
+      |> length()
   end
 end
 
