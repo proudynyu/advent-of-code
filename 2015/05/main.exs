@@ -40,11 +40,11 @@ defmodule Resolver do
         true -> acc + 1
         _ -> acc
       end
+    end)
     |> case do
         x when x >= 3 -> true
         _ -> false
       end
-    end)
   end
 
   @spec has_double_alpha_letter?(String.t()) :: Atom.t()
@@ -76,7 +76,7 @@ defmodule Resolver do
   end
 end
 
-filename = "example"
+filename = "input"
 Resolver.part_one(filename)
   |> IO.inspect()
 
