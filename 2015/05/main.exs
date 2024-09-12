@@ -1,4 +1,4 @@
-defmodule Resolver do
+defmodule Utils do 
   @spec read_file(String.t()) :: String.t()
   defp read_file(filename) do
     filename
@@ -16,7 +16,9 @@ defmodule Resolver do
     file
     |> String.split("\n")
   end
+end
 
+defmodule PartOne do
   @spec create_vowels() :: list(String.t())
   defp create_vowels() do
     "aeiou"
@@ -61,12 +63,12 @@ defmodule Resolver do
     end
   end
 
-  @spec part_one(String.t()) :: Integer.t()
-  def part_one(filename) do
+  @spec resolve(String.t()) :: Integer.t()
+  def resolve(filename) do
     vowels = create_vowels()
     filename
-      |> read_file()
-      |> split_file_line()
+      |> Utils.read_file()
+      |> Utils.split_file_line()
       |> Enum.filter(fn line ->
           no_forbiden_substrings?(line)
           and has_double_alpha_letter?(line)
