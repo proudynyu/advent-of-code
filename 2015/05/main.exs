@@ -78,7 +78,20 @@ defmodule PartOne do
   end
 end
 
-filename = "input"
-Resolver.part_one(filename)
+defmodule PartTwo do
+  @spec resolve(String.t())
+  def resolve(filename) do
+    filename
+    |> Utils.read_file()
+    |> Utils.split_file_line()
+  end
+end
+
+part_one = "example"
+PartOne.resolve(part_one)
   |> IO.inspect()
+
+part_two = "example_2"
+PartTwo.resolve(part_two)
+|> IO.inspect()
 
