@@ -1,6 +1,6 @@
 defmodule Utils do 
   @spec read_file(String.t()) :: String.t()
-  defp read_file(filename) do
+  def read_file(filename) do
     filename
     |> File.read()
     |> case do
@@ -12,60 +12,62 @@ defmodule Utils do
   end
 
   @spec split_file_line(String.t()) :: list(String.t())
-  defp split_file_line(file) do
+  def split_file_line(file) do
     file
     |> String.split("\n")
   end
 end
 
 defmodule PartOne do
-  @spec create_vowels() :: list(String.t())
-  defp create_vowels() do
+  @spec vowels_list() :: list(String.t())
+  defp vowels_list() do
     "aeiou"
-      |> String.graphemes()
+     |> String.graphemes()
   end
 
-  @spec no_forbiden_substrings?(String.t()) :: Atom.t()
+  @spec no_forbiden_substrings?(String.t()) :: boolean()
   defp no_forbiden_substrings?(line) do
-    not (
-      line
-      |> String.contains?(["ab", "cd", "pq", "xy"])
-    )
+    not String.contains?(line, ["ab", "cd", "pq", "xy"])
   end
 
-  @spec has_three_vowels?(String.t(), list(String.t())) :: Atom.t()
+  @spec has_three_vowels?(String.t(), list(String.t())) :: boolean()
   defp has_three_vowels?(line, vowels) do
     line
     |> String.graphemes()
     |> Enum.reduce(0, fn letter, acc -> 
-      case Enum.member?(vowels, letter) do
-        true -> acc + 1
-        _ -> acc
-      end
+      if letter in vowels, do: acc + 1, else: acc
+      # case Enum.member?(vowels, letter) do
+      #   true -> acc + 1
+      #   _ -> acc
+      # end
     end)
-    |> case do
-        x when x >= 3 -> true
-        _ -> false
-      end
+    |> (&(&1 >= 3)).()
+    # case do
+    #     x when x >= 3 -> true
+    #     _ -> false
+    #   end
   end
 
-  @spec has_double_alpha_letter?(String.t()) :: Atom.t()
+  @spec has_double_alpha_letter?(String.t()) :: boolean()
   defp has_double_alpha_letter?(line) do
     line
     |> String.graphemes()
-    |> Enum.chunk_by(fn arg -> arg end)
-    |> Enum.map(fn arg -> to_string(arg) end)
-    |> Enum.filter(fn x -> String.length(x) > 1 end)
-    |> length()
-    |> case do
-      x when x > 0 -> true
-      _ -> false
-    end
+    |> Enum.chunk_every(2, 1, :discard)
+    |> Enum.any?(fn [a, b] -> a == b end)
+    # |> Enum.chunk_by(fn arg -> arg end)
+    # |> Enum.map(fn arg -> to_string(arg) end)
+    # |> Enum.filter(fn x -> String.length(x) > 1 end)
+    # |> length()
+    # |> case do
+    #   x when x > 0 -> true
+    #   _ -> false
+    # end
   end
 
-  @spec resolve(String.t()) :: Integer.t()
+  @spec resolve(String.t()) :: non_neg_integer()
   def resolve(filename) do
-    vowels = create_vowels()
+    vowels = vowels_list()
+
     filename
       |> Utils.read_file()
       |> Utils.split_file_line()
@@ -79,11 +81,53 @@ defmodule PartOne do
 end
 
 defmodule PartTwo do
-  @spec resolve(String.t())
+  @spec resolve(String.t()) :: non_neg_integer()
   def resolve(filename) do
     filename
     |> Utils.read_file()
     |> Utils.split_file_line()
+    |> Enum.filter(fn line ->
+      recursive_identify_double?(line) and 
+      has_same_letter_with_one_between?(line) and
+      not has_three_letter_together?(line)
+    end)
+    |> length
+  end
+
+  @spec recursive_identify_double?(String.t()) :: boolean()
+  def recursive_identify_double?(line) when byte_size(line) < 2, do: false
+  def recursive_identify_double?(line) do
+    double_letter = String.slice(line, 0, 2)
+    letters = String.slice(line, 2..-1//1)
+    
+    case String.match?(letters, ~r/#{double_letter}/) do
+      true -> true
+      false -> recursive_identify_double?(letters)
+    end
+  end
+
+  @spec has_same_letter_with_one_between?(String.t()) :: boolean()
+  def has_same_letter_with_one_between?(line) when byte_size(line) < 3, do: false
+  def has_same_letter_with_one_between?(line) do
+    graphemes = String.graphemes(line)
+    
+    graphemes
+    |> Enum.with_index()
+    |> Enum.any?(fn {char, index} -> 
+      index + 2 < length(graphemes) and char == Enum.at(graphemes, index + 2)
+    end)
+  end
+
+  @spec has_three_letter_together?(String.t()) :: boolean()
+  def has_three_letter_together?(line) when byte_size(line) < 3, do: false
+  def has_three_letter_together?(line) do
+    graph = String.graphemes(line)
+    graph_length = length(graph)
+    
+    Enum.any?(0..(graph_length - 3), fn index ->
+      char = Enum.at(graph, index)
+      char == Enum.at(graph, index + 1) and char == Enum.at(graph, index + 2)
+    end)
   end
 end
 
@@ -91,7 +135,7 @@ part_one = "example"
 PartOne.resolve(part_one)
   |> IO.inspect()
 
-part_two = "example_2"
+part_two = "input"
 PartTwo.resolve(part_two)
 |> IO.inspect()
 
