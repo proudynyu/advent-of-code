@@ -87,9 +87,9 @@ defmodule PartTwo do
     |> Utils.read_file()
     |> Utils.split_file_line()
     |> Enum.filter(fn line ->
-      recursive_identify_double?(line) and 
-      has_same_letter_with_one_between?(line) and
-      not has_three_letter_together?(line)
+        not has_three_letter_together?(line) and
+      recursive_identify_double?(line) 
+      # has_same_letter_with_one_between?(line) and
     end)
     |> length
   end
@@ -126,7 +126,7 @@ defmodule PartTwo do
     
     Enum.any?(0..(graph_length - 3), fn index ->
       char = Enum.at(graph, index)
-      char == Enum.at(graph, index + 1) and char == Enum.at(graph, index + 2)
+      char === Enum.at(graph, index + 1) and char === Enum.at(graph, index + 2)
     end)
   end
 end
