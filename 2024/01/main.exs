@@ -37,11 +37,25 @@ defmodule Main do
     |> Enum.sum()
   end
 
+  def calculate_freq(_freq, [], acc), do: acc 
+  def calculate_freq(freq, [head | tail], acc) do
+    value = freq[head]
+    if value === nil do
+      new_acc = [0 | acc]
+      calculate_freq(freq, tail, new_acc)
+    else
+      new_acc = [value * String.to_integer(head) | acc]
+      calculate_freq(freq, tail, new_acc)
+    end
+  end
+
   def resolver_part_2(list_of_list) do
     acc = [[], []]
-    [_one, two] = separate_lists(list_of_list, acc)
+    [one, two] = separate_lists(list_of_list, acc)
     freq = Enum.frequencies(two)
-    freq
+
+    calculate_freq(freq, one, [])
+    |> Enum.sum()
   end
 end
 
@@ -49,6 +63,6 @@ Main.read_file("./example.txt")
 |> Main.resolve_part_1
 |> IO.inspect
 
-Main.read_file("./example.txt")
+Main.read_file("./input.txt")
 |> Main.resolver_part_2
 |> IO.inspect
