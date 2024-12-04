@@ -1,3 +1,63 @@
+defmodule Utils do
+  defp is_increasing?([]), do: true
+  defp is_increasing?([_]), do: true
+  defp is_increasing?([a, b | rest]) do
+    a < b && is_increasing?([ b | rest ])
+  end
+
+  defp is_decreasing?([]), do: true
+  defp is_decreasing?([_]), do: true
+  defp is_decreasing?([a, b | rest]) do
+    a > b && is_decreasing?([ b | rest ])
+  end
+
+  def increase_or_decrease?([]), do: true
+  def increase_or_decrease?([_]), do: true
+  def increase_or_decrease?(list) do
+    case list do
+      [a, b | _] when a < b -> is_increasing?(list)
+      [a, b | _] when a > b -> is_decreasing?(list)
+      _ -> true
+    end
+  end
+
+  defp valid_pair?(a, b, :increase), do: b - a <= 3 and b - a > 0
+  defp valid_pair?(a, b, :decrease), do: a - b <= 3 and a - b > 0
+
+  def check_list([], _), do: nil
+  def check_list([_], _), do: nil
+  def check_list([a, b | rest], mode) do
+    if not valid_pair?(a, b, mode) do
+      0
+    else
+      case check_list([b | rest], mode) do
+        nil -> nil
+        idx -> idx + 1
+      end
+    end
+  end
+
+  def find_idx([a, b | _rest] = list) do
+    cond do
+      a >= b -> check_list(list, :decrease)
+      a <= b -> check_list(list, :increase)
+      true -> nil
+    end
+  end
+
+  def is_safe?([]), do: true
+  def is_safe?([_]), do: true
+  def is_safe?([a, b | rest]) do
+    v = abs(a - b)
+    cond do
+      v > 0 and v <= 3 -> is_safe?([b | rest])
+      true -> false
+    end
+  end
+
+  def is_valid_list?(list), do: is_safe?(list) and increase_or_decrease?(list)
+end
+
 defmodule Main do
   @spec read_file(String.t()) :: list(String.t())
   def read_file(filename) do
@@ -7,59 +67,59 @@ defmodule Main do
     |> String.split("\n", trim: true)
     |> Enum.map(fn x -> String.split(x, " ") end)
   end
+
+  defp parse_numbers(list) do
+    Enum.map(list, &String.to_integer/1)
+  end
+
+  defp fix_sequence(list) do
+    case Utils.find_idx(list) do
+      nil -> list
+      idx -> 
+        first_list = List.delete_at(list, idx)
+        second_list = if idx + 1 < length(list), do: List.delete_at(list, idx + 1), else: nil
+
+        cond do
+          Utils.is_valid_list?(first_list) -> first_list
+          second_list && Utils.is_valid_list?(second_list) -> second_list
+          true -> list
+        end
+    end
+  end
   
-  def verify_sub?(_t, size) when size === 1, do: true
-  def verify_sub?([head | [head_2 | tail]], size) do
-    v = abs(head - head_2)
-    cond do
-      v > 3 -> false
-      v <= 0 -> false
-      true -> 
-        new_size = size - 1
-        verify_sub?([head_2 | tail], new_size)
-    end
-  end
-
-  def check_list?(_v, _o, size, _acc) when size === 1, do: true
-  def check_list?([head | [head_2 | tail]], opt, size, acc) do
-    type_of_list = if head < head_2 do :increase else :decrease end
-    
-    cond do
-      opt === type_of_list -> 
-        new_size = size - 1
-        check_list?([head_2 | tail], opt, new_size, acc)
-
-      opt !== type_of_list -> false
-      true -> false
-    end
-  end
-
-  def increase_or_decrease?([head | [head_2 | _tail]] = l) do
-    is_increase = if head < head_2 do :increase else :decrease end
-    size = length(l)
-    check_list?(l, is_increase, size, [])
-  end
-
   def resolve_1(list_of_values) do
     list_of_values
-    |> Enum.map(fn x -> Enum.map(x, fn y -> String.to_integer(y) end) end)
-    |> Enum.filter(fn l -> 
-      size = length(l)
-      verify_sub?(l, size) and increase_or_decrease?(l)
-    end)
+    |> Enum.map(fn x -> Enum.map(x, &String.to_integer/1) end)
+    |> Enum.filter(&Utils.is_valid_list?/1)
     |> length
   end
 
   def resolve_2(list_of_values) do
-    list_of_values
-    |> Enum.map(fn x -> Enum.map(x, fn y -> String.to_integer(y) end) end)
+    list = list_of_values
+    |> Enum.map(&parse_numbers/1)
+
+    safe = list
+    |> Enum.filter(&Utils.is_valid_list?/1)
+    |> length
+
+    unsafe = list
+    |> Enum.filter(&(not Utils.is_valid_list?(&1)))
+    |> Enum.map(&fix_sequence/1)
+    |> Enum.filter(&Utils.is_valid_list?/1)
+    |> length
+
+    IO.puts("safe: #{safe} / unsafe: #{unsafe}")
+    safe + unsafe
+
+    # result should be 426, im at 423
   end
+
 end
 
-Main.read_file("./example.txt")
+Main.read_file("./input.txt")
 |> Main.resolve_1
 |> IO.inspect
 
-Main.read_file("./example.txt")
+Main.read_file("./input.txt")
 |> Main.resolve_2
-|> IO.inspect
+|> IO.inspect([charlists: :as_lists])
