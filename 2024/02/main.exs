@@ -37,7 +37,7 @@ defmodule Utils do
     end
   end
 
-  def find_idx([a, b | _rest] = list) do
+  def find_idx([a, b | _r] = list) do
     cond do
       a >= b -> check_list(list, :decrease)
       a <= b -> check_list(list, :increase)
@@ -59,11 +59,8 @@ defmodule Utils do
 end
 
 defmodule Main do
-  @spec read_file(String.t()) :: list(String.t())
   def read_file(filename) do
-    {_, file} = File.read(filename)
-
-    file
+    File.read!(filename)
     |> String.split("\n", trim: true)
     |> Enum.map(fn x -> String.split(x, " ") end)
   end
@@ -95,21 +92,11 @@ defmodule Main do
   end
 
   def resolve_2(list_of_values) do
-    list = list_of_values
+    list_of_values
     |> Enum.map(&parse_numbers/1)
-
-    safe = list
-    |> Enum.filter(&Utils.is_valid_list?/1)
-    |> length
-
-    unsafe = list
-    |> Enum.filter(&(not Utils.is_valid_list?(&1)))
     |> Enum.map(&fix_sequence/1)
     |> Enum.filter(&Utils.is_valid_list?/1)
     |> length
-
-    IO.puts("safe: #{safe} / unsafe: #{unsafe}")
-    safe + unsafe
 
     # result should be 426, im at 423
   end
