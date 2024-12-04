@@ -1,18 +1,21 @@
 defmodule Utils do
   defp is_increasing?([]), do: true
   defp is_increasing?([_]), do: true
+
   defp is_increasing?([a, b | rest]) do
-    a < b && is_increasing?([ b | rest ])
+    a < b && is_increasing?([b | rest])
   end
 
   defp is_decreasing?([]), do: true
   defp is_decreasing?([_]), do: true
+
   defp is_decreasing?([a, b | rest]) do
-    a > b && is_decreasing?([ b | rest ])
+    a > b && is_decreasing?([b | rest])
   end
 
   def increase_or_decrease?([]), do: true
   def increase_or_decrease?([_]), do: true
+
   def increase_or_decrease?(list) do
     case list do
       [a, b | _] when a < b -> is_increasing?(list)
@@ -21,44 +24,51 @@ defmodule Utils do
     end
   end
 
-  defp valid_pair?(a, b, :increase), do: b - a <= 3 and b - a > 0
-  defp valid_pair?(a, b, :decrease), do: a - b <= 3 and a - b > 0
-
-  def check_list([], _), do: nil
-  def check_list([_], _), do: nil
-  def check_list([a, b | rest], mode) do
-    if not valid_pair?(a, b, mode) do
-      0
-    else
-      case check_list([b | rest], mode) do
-        nil -> nil
-        idx -> idx + 1
-      end
-    end
-  end
-
-  def find_idx([a, b | _r] = list) do
-    cond do
-      a >= b -> check_list(list, :decrease)
-      a <= b -> check_list(list, :increase)
-      true -> nil
-    end
-  end
-
   def is_safe?([]), do: true
   def is_safe?([_]), do: true
-  def is_safe?([a, b | rest]) do
+
+  def is_safe?([a, b | rest] = list) do
     v = abs(a - b)
+    is = is_increasing?(list) or is_decreasing?(list)
+
     cond do
-      v > 0 and v <= 3 -> is_safe?([b | rest])
+      v > 0 and v <= 3 and is -> is_safe?([b | rest])
       true -> false
     end
+  end
+
+  def any?(list) do
+    list
+    |> Enum.with_index()
+    |> Enum.any?(fn {_, i} ->
+      f = Enum.slice(list, 0, i)
+      s = Enum.slice(list, i + 1, length(list))
+
+      new_list = [f | s] |> List.flatten()
+      is_safe?(new_list)
+    end)
+  end
+
+  def reduce(list_of_list) do
+    list_of_list
+    |> Enum.reduce(0, fn list, acc ->
+      safed = is_safe?(list) or any?(list)
+
+      value =
+        if safed do
+          1
+        else
+          0
+        end
+
+      acc + value
+    end)
   end
 
   def is_valid_list?(list), do: is_safe?(list) and increase_or_decrease?(list)
 end
 
-defmodule Main do
+defmodule Day2 do
   def read_file(filename) do
     File.read!(filename)
     |> String.split("\n", trim: true)
@@ -70,21 +80,6 @@ defmodule Main do
     Enum.map(list, &String.to_integer/1)
   end
 
-  defp fix_sequence(list) do
-    case Utils.find_idx(list) do
-      nil -> list
-      idx -> 
-        first_list = List.delete_at(list, idx)
-        second_list = if idx + 1 < length(list), do: List.delete_at(list, idx + 1), else: nil
-
-        cond do
-          Utils.is_valid_list?(first_list) -> first_list
-          second_list && Utils.is_valid_list?(second_list) -> second_list
-          true -> list
-        end
-    end
-  end
-  
   def resolve_1(list_of_values) do
     list_of_values
     |> Enum.filter(&Utils.is_valid_list?/1)
@@ -92,21 +87,16 @@ defmodule Main do
   end
 
   def resolve_2(list_of_values) do
-    list_of_values
-    |> Enum.map(&fix_sequence/1)
-    |> Enum.filter(&Utils.is_valid_list?/1)
-    |> length
-
-    # result should be 426, im at 423
+    Utils.reduce(list_of_values)
   end
-
 end
 
-Main.read_file("./input.txt")
-|> Main.resolve_1
-|> IO.inspect
+file = "../inputs/day_2.txt"
 
-Main.read_file("./input.txt")
-|> Main.resolve_2
-|> IO.inspect([charlists: :as_lists])
+Day2.read_file(file)
+|> Day2.resolve_1()
+|> IO.inspect()
 
+Day2.read_file(file)
+|> Day2.resolve_2()
+|> IO.inspect(charlists: :as_lists)

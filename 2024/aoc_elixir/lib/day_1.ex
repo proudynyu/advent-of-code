@@ -2,6 +2,7 @@ defmodule Main do
   @spec read_file(String.t()) :: list()
   def read_file(filename) do
     {_, file} = File.read(filename)
+
     file
     |> String.split("\n")
     |> Enum.map(fn x ->
@@ -12,6 +13,7 @@ defmodule Main do
   end
 
   defp separate_lists([], acc), do: acc
+
   defp separate_lists([head | tail], [one, two]) do
     [x, y] = head
     acc = [[x | one], [y | two]]
@@ -20,6 +22,7 @@ defmodule Main do
 
   defp join_lists([], acc), do: acc
   defp join_lists([[], []], acc), do: acc
+
   defp join_lists([one, two], acc) do
     [head_one | tail_one] = one
     [head_two | tail_two] = two
@@ -29,6 +32,7 @@ defmodule Main do
 
   def resolve_part_1(list_of_list) do
     acc = [[], []]
+
     separate_lists(list_of_list, acc)
     |> Enum.map(fn list ->
       Enum.sort(list, &(&1 <= &2))
@@ -37,9 +41,11 @@ defmodule Main do
     |> Enum.sum()
   end
 
-  def calculate_freq(_freq, [], acc), do: acc 
+  def calculate_freq(_freq, [], acc), do: acc
+
   def calculate_freq(freq, [head | tail], acc) do
     value = freq[head]
+
     if value === nil do
       new_acc = [0 | acc]
       calculate_freq(freq, tail, new_acc)
@@ -60,10 +66,9 @@ defmodule Main do
 end
 
 Main.read_file("./example.txt")
-|> Main.resolve_part_1
-|> IO.inspect
+|> Main.resolve_part_1()
+|> IO.inspect()
 
 Main.read_file("./input.txt")
-|> Main.resolver_part_2
-|> IO.inspect
-
+|> Main.resolver_part_2()
+|> IO.inspect()
